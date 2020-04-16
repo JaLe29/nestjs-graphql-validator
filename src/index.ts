@@ -65,37 +65,37 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 	transform(value: any, metadata: ArgumentMetadata): any {
 		if (!metadata || !metadata.data) return value;
 
-		for (const key of Object.keys(this.schema)) {
-			const schemaKey = key;
+		const schemaKey = metadata.data;
 
-			const splitPath = schemaKey.split('_'); // is nested ?
-			let propertyPath = undefined;
+		const splitPath = schemaKey.split('_'); // is nested ?
+		let propertyPath = undefined;
 
-			if (splitPath.length > 1) {
-				const rest = splitPath.slice(1); // skip first
-				propertyPath = rest.join('.');
-			}
+		if (splitPath.length > 1) {
+			const rest = splitPath.slice(1); // skip first
+			propertyPath = rest.join('.');
+		}
 
-			for (const insideSchemaKey of Object.keys(this.schema[schemaKey])) {
-				if (this.validators[insideSchemaKey]) {
-					var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
+		if (!this.schema[schemaKey]) return value
+		for (const insideSchemaKey of Object.keys(this.schema[schemaKey])) {
+			if (this.validators[insideSchemaKey]) {
+				var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
 
-					if (!isValid) {
-						let errMsg = null;
-						if (this.schema[schemaKey].customError) {
+				if (!isValid) {
+					let errMsg = null;
+					if (this.schema[schemaKey].customError) {
 
-							errMsg = this.schema[schemaKey].customError;
-						}
-						else {
-							errMsg = `Validation failed for property ${metadata.data}, rules: ${insideSchemaKey}#${schemaKey}#${this.schema[schemaKey][insideSchemaKey]}`;
-						}
-						throw new BadRequestException(errMsg);
+						errMsg = this.schema[schemaKey].customError;
 					}
-				}
-				else {
-					console.error("Unsuppported chema key " + schemaKey);
+					else {
+						errMsg = `Validation failed for property ${metadata.data}, rules: ${insideSchemaKey}#${schemaKey}#${this.schema[schemaKey][insideSchemaKey]}`;
+					}
+					throw new BadRequestException(errMsg);
 				}
 			}
+			else {
+				console.error("Unsuppported chema key " + schemaKey);
+			}
+
 		}
 		return value;
 	}

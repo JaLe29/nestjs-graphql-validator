@@ -65,33 +65,32 @@ var NestjsGraphqlValidator = /** @class */ (function () {
     NestjsGraphqlValidator.prototype.transform = function (value, metadata) {
         if (!metadata || !metadata.data)
             return value;
-        for (var _i = 0, _a = Object.keys(this.schema); _i < _a.length; _i++) {
-            var key = _a[_i];
-            var schemaKey = key;
-            var splitPath = schemaKey.split('_'); // is nested ?
-            var propertyPath = undefined;
-            if (splitPath.length > 1) {
-                var rest = splitPath.slice(1); // skip first
-                propertyPath = rest.join('.');
-            }
-            for (var _b = 0, _c = Object.keys(this.schema[schemaKey]); _b < _c.length; _b++) {
-                var insideSchemaKey = _c[_b];
-                if (this.validators[insideSchemaKey]) {
-                    var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
-                    if (!isValid) {
-                        var errMsg = null;
-                        if (this.schema[schemaKey].customError) {
-                            errMsg = this.schema[schemaKey].customError;
-                        }
-                        else {
-                            errMsg = "Validation failed for property " + metadata.data + ", rules: " + insideSchemaKey + "#" + schemaKey + "#" + this.schema[schemaKey][insideSchemaKey];
-                        }
-                        throw new common_1.BadRequestException(errMsg);
+        var schemaKey = metadata.data;
+        var splitPath = schemaKey.split('_'); // is nested ?
+        var propertyPath = undefined;
+        if (splitPath.length > 1) {
+            var rest = splitPath.slice(1); // skip first
+            propertyPath = rest.join('.');
+        }
+        if (!this.schema[schemaKey])
+            return value;
+        for (var _i = 0, _a = Object.keys(this.schema[schemaKey]); _i < _a.length; _i++) {
+            var insideSchemaKey = _a[_i];
+            if (this.validators[insideSchemaKey]) {
+                var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
+                if (!isValid) {
+                    var errMsg = null;
+                    if (this.schema[schemaKey].customError) {
+                        errMsg = this.schema[schemaKey].customError;
                     }
+                    else {
+                        errMsg = "Validation failed for property " + metadata.data + ", rules: " + insideSchemaKey + "#" + schemaKey + "#" + this.schema[schemaKey][insideSchemaKey];
+                    }
+                    throw new common_1.BadRequestException(errMsg);
                 }
-                else {
-                    console.error("Unsuppported chema key " + schemaKey);
-                }
+            }
+            else {
+                console.error("Unsuppported chema key " + schemaKey);
             }
         }
         return value;
