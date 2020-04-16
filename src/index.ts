@@ -5,7 +5,7 @@ export type ValidatorRuleType = number | RegExp
 export type FieldType = number | string;
 
 @Injectable()
-export default class JoiValidationPipe implements PipeTransform {
+export default class NestjsGraphqlValidator implements PipeTransform {
 
 	validators: { [key: string]: (field: any, validatorValue: any) => boolean } = {
 		// string
@@ -44,7 +44,7 @@ export default class JoiValidationPipe implements PipeTransform {
 		for (const rule of rules) {
 			let isValidRule = false
 			if (rule === RULE_EMAIL) {
-				isValidRule = this.regExpValidator(field, REG_EXP_EMAIL)
+				isValidRule = new RegExp(REG_EXP_EMAIL).test(field)
 			} else {
 				console.error(`Unsuppported rule ${rule}`)
 			}

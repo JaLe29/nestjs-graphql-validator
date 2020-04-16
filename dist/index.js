@@ -8,8 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var common_1 = require("@nestjs/common");
 var const_1 = require("./const");
-var JoiValidationPipe = /** @class */ (function () {
-    function JoiValidationPipe(schema) {
+var NestjsGraphqlValidator = /** @class */ (function () {
+    function NestjsGraphqlValidator(schema) {
         this.schema = schema;
         this.validators = {
             // string
@@ -22,27 +22,27 @@ var JoiValidationPipe = /** @class */ (function () {
             rules: this.rulesValidator,
         };
     }
-    JoiValidationPipe.prototype.maxLenValidator = function (field, validatorValue) {
+    NestjsGraphqlValidator.prototype.maxLenValidator = function (field, validatorValue) {
         return field.length <= validatorValue;
     };
-    JoiValidationPipe.prototype.minLenValidator = function (field, validatorValue) {
+    NestjsGraphqlValidator.prototype.minLenValidator = function (field, validatorValue) {
         return field.length >= validatorValue;
     };
-    JoiValidationPipe.prototype.minValidator = function (field, validatorValue) {
+    NestjsGraphqlValidator.prototype.minValidator = function (field, validatorValue) {
         return field >= validatorValue;
     };
-    JoiValidationPipe.prototype.maxValidator = function (field, validatorValue) {
+    NestjsGraphqlValidator.prototype.maxValidator = function (field, validatorValue) {
         return field <= validatorValue;
     };
-    JoiValidationPipe.prototype.regExpValidator = function (field, validatorValue) {
+    NestjsGraphqlValidator.prototype.regExpValidator = function (field, validatorValue) {
         return new RegExp(validatorValue).test(field);
     };
-    JoiValidationPipe.prototype.rulesValidator = function (field, rules) {
+    NestjsGraphqlValidator.prototype.rulesValidator = function (field, rules) {
         for (var _i = 0, rules_1 = rules; _i < rules_1.length; _i++) {
             var rule = rules_1[_i];
             var isValidRule = false;
             if (rule === const_1.RULE_EMAIL) {
-                isValidRule = this.regExpValidator(field, const_1.REG_EXP_EMAIL);
+                isValidRule = new RegExp(const_1.REG_EXP_EMAIL).test(field);
             }
             else {
                 console.error("Unsuppported rule " + rule);
@@ -52,7 +52,7 @@ var JoiValidationPipe = /** @class */ (function () {
         }
         return true;
     };
-    JoiValidationPipe.prototype.transform = function (value, metadata) {
+    NestjsGraphqlValidator.prototype.transform = function (value, metadata) {
         if (metadata && metadata.data && this.schema[metadata.data]) {
             for (var _i = 0, _a = Object.keys(this.schema[metadata.data]); _i < _a.length; _i++) {
                 var key = _a[_i];
@@ -75,10 +75,10 @@ var JoiValidationPipe = /** @class */ (function () {
         }
         return value;
     };
-    JoiValidationPipe = __decorate([
+    NestjsGraphqlValidator = __decorate([
         common_1.Injectable()
-    ], JoiValidationPipe);
-    return JoiValidationPipe;
+    ], NestjsGraphqlValidator);
+    return NestjsGraphqlValidator;
 }());
-exports.default = JoiValidationPipe;
+exports.default = NestjsGraphqlValidator;
 //# sourceMappingURL=index.js.map

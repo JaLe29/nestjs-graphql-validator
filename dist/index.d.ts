@@ -1,7 +1,7 @@
 import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
 export declare type ValidatorRuleType = number | RegExp;
 export declare type FieldType = number | string;
-export default class JoiValidationPipe implements PipeTransform {
+export default class NestjsGraphqlValidator implements PipeTransform {
     private schema;
     validators: {
         [key: string]: (field: any, validatorValue: any) => boolean;
