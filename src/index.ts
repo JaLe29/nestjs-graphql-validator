@@ -1,10 +1,13 @@
-// @ts-nocheck
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common'
+import { REG_EXP_EMAIL, RULE_EMAIL } from './const'
+
+export type ValidatorRuleType = number | RegExp
+export type FieldType = number | string;
 
 @Injectable()
 export default class JoiValidationPipe implements PipeTransform {
 
-	validators: any = {
+	validators: { [key: string]: (field: any, validatorValue: any) => boolean } = {
 		// string
 		maxLen: this.maxLenValidator,
 		minLen: this.minLenValidator,
@@ -12,34 +15,50 @@ export default class JoiValidationPipe implements PipeTransform {
 		min: this.minValidator,
 		max: this.maxValidator,
 		regExp: this.regExpValidator,
+		rules: this.rulesValidator,
 	}
 
 	constructor(private schema: any) { }
 
-	private maxLenValidator(field: string, validatorValue: any) {
-		console.log(field, validatorValue)
+	private maxLenValidator(field: string, validatorValue: ValidatorRuleType) {
 		return field.length <= validatorValue
 	}
 
-	private minLenValidator(field: string, validatorValue: any) {
+	private minLenValidator(field: string, validatorValue: ValidatorRuleType) {
 		return field.length >= validatorValue
 	}
 
-	private minValidator(field: any, validatorValue: any) {
+	private minValidator(field: number, validatorValue: ValidatorRuleType) {
 		return field >= validatorValue
 	}
 
-	private maxValidator(field: any, validatorValue: any) {
+	private maxValidator(field: number, validatorValue: ValidatorRuleType) {
 		return field <= validatorValue
 	}
 
-	private regExpValidator(field: any, validatorValue: any) {
+	private regExpValidator(field: string, validatorValue: RegExp) {
 		return new RegExp(validatorValue).test(field)
 	}
 
-	transform(value: any, metadata: ArgumentMetadata) {
-		if (this.schema[metadata.data]) {
-			for (const schemaKey of Object.keys(this.schema[metadata.data])) {
+	private rulesValidator(field: string, rules: string[]) {
+		for (const rule of rules) {
+			let isValidRule = false
+			if (rule === RULE_EMAIL) {
+				isValidRule = this.regExpValidator(field, REG_EXP_EMAIL)
+			} else {
+				console.error(`Unsuppported rule ${rule}`)
+			}
+
+			if (!isValidRule) return false
+		}
+		return true
+	}
+
+	transform(value: any, metadata: ArgumentMetadata): any {
+		if (metadata && metadata.data && this.schema[metadata.data]) {
+			for (const key of Object.keys(this.schema[metadata.data])) {
+				const schemaKey: string = key
+
 				if (this.validators[schemaKey]) {
 					const isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey])
 					if (!isValid) {
