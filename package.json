@@ -1,0 +1,35 @@
+{
+	"name": "nestjs-graphql-validator",
+	"version": "1.0.0",
+	"description": "The simple nestjs library for validating graphql fields",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "npx tsc",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/JaLe29/nestjs-graphql-validator.git"
+	},
+	"keywords": [
+		"nestjs",
+		"graphql",
+		"validator"
+	],
+	"author": "JaLe",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/JaLe29/nestjs-graphql-validator/issues"
+	},
+	"homepage": "https://github.com/JaLe29/nestjs-graphql-validator#readme",
+	"devDependencies": {
+		"rxjs": "^6.5.5",
+		"typescript": "^3.8.3"
+	},
+	"peerDependencies": {
+		"@nestjs/common": "^7.0.8"
+	},
+	"dependencies": {
+		"@nestjs/common": "^7.0.8"
+	}
+}
