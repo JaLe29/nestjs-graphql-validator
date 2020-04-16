@@ -16,7 +16,7 @@ public exampleA(
 	@Args('name') name: string,
 ) {
 	// ...
-return { email, name }
+	return { email, name }
 }
 
 @Mutation()
@@ -62,4 +62,5 @@ In case of error `BadRequestException` from `import { BadRequestException } from
 | max    | number             |
 | regExp | regular expression |
 | rules  | Array of strings   |
+
 (for rules only isEmail is avalible right now)
