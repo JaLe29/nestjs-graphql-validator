@@ -9,44 +9,44 @@ import NestjsGraphqlValidator from 'nestjs-graphql-validator'
 
 @Mutation()
 @UsePipes(new NestjsGraphqlValidator({
-	email: { maxLen: 255, minLen: 10, rules: ['isEmail'] },
+    email: { maxLen: 255, minLen: 10, rules: ['isEmail'] },
 }))
 public exampleA(
-	@Args('email') email: string,
-	@Args('name') name: string,
+    @Args('email') email: string,
+    @Args('name') name: string,
 ) {
-	// ...
-	return { email, name }
+    // ...
+    return { email, name }
 }
 
 @Mutation()
 @UsePipes(new NestjsGraphqlValidator({
-	email: { regExp: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/ },
+    email: { regExp: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/ },
 }))
 public exampleB(
-	@Args('email') email: string,
+    @Args('email') email: string,
 ) {
-	    // ...
+    // ...
 }
 
 @Query()
 @UsePipes(new NestjsGraphqlValidator({
-	number: { max: 20 },
+    number: { max: 20 },
 }))
 public exampleC(
-	@Args('email') email: string,
+    @Args('email') email: string,
 ) {
-	    // ...
+    // ...
 }
 
 @Query()
 @UsePipes(new NestjsGraphqlValidator({
-	data_email: { maxLen: 255, minLen: 10, rules: ['isEmail'] }, // nested ----> email is in object (data.email)
+    data_email: { maxLen: 255, minLen: 10, rules: ['isEmail'] }, // nested ----> email is in object (data.email)
 }))
 public exampleD(
-	@Args('data') data: { email: string, name: string },
+    @Args('data') data: { email: string, name: string },
 ) {
-	    // ...
+    // ...
 }
 ```
 Email field is validated before body of `createUserTest` is execuded.
