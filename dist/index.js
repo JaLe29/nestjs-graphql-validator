@@ -6,8 +6,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// @ts-nocheck
 var common_1 = require("@nestjs/common");
+var const_1 = require("./const");
 var JoiValidationPipe = /** @class */ (function () {
     function JoiValidationPipe(schema) {
         this.schema = schema;
@@ -19,10 +19,10 @@ var JoiValidationPipe = /** @class */ (function () {
             min: this.minValidator,
             max: this.maxValidator,
             regExp: this.regExpValidator,
+            rules: this.rulesValidator,
         };
     }
     JoiValidationPipe.prototype.maxLenValidator = function (field, validatorValue) {
-        console.log(field, validatorValue);
         return field.length <= validatorValue;
     };
     JoiValidationPipe.prototype.minLenValidator = function (field, validatorValue) {
@@ -37,10 +37,26 @@ var JoiValidationPipe = /** @class */ (function () {
     JoiValidationPipe.prototype.regExpValidator = function (field, validatorValue) {
         return new RegExp(validatorValue).test(field);
     };
+    JoiValidationPipe.prototype.rulesValidator = function (field, rules) {
+        for (var _i = 0, rules_1 = rules; _i < rules_1.length; _i++) {
+            var rule = rules_1[_i];
+            var isValidRule = false;
+            if (rule === const_1.RULE_EMAIL) {
+                isValidRule = this.regExpValidator(field, const_1.REG_EXP_EMAIL);
+            }
+            else {
+                console.error("Unsuppported rule " + rule);
+            }
+            if (!isValidRule)
+                return false;
+        }
+        return true;
+    };
     JoiValidationPipe.prototype.transform = function (value, metadata) {
-        if (this.schema[metadata.data]) {
+        if (metadata && metadata.data && this.schema[metadata.data]) {
             for (var _i = 0, _a = Object.keys(this.schema[metadata.data]); _i < _a.length; _i++) {
-                var schemaKey = _a[_i];
+                var key = _a[_i];
+                var schemaKey = key;
                 if (this.validators[schemaKey]) {
                     var isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey]);
                     if (!isValid) {

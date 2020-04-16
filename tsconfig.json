@@ -9,7 +9,5 @@
 		"sourceMap": true,
 		"skipLibCheck": true,
 		"declaration": true,
-		"noEmit": false,
-		"emitDeclarationOnly": true
 	}
 }
