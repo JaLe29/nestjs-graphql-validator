@@ -4,7 +4,7 @@ export declare type FieldType = number | string;
 export default class NestjsGraphqlValidator implements PipeTransform {
     private schema;
     validators: {
-        [key: string]: (field: any, validatorValue: any) => boolean;
+        [key: string]: (field: any, validatorValue: any, propertyPath?: string) => boolean;
     };
     constructor(schema: any);
     private maxLenValidator;

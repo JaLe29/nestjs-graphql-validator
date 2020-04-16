@@ -5,7 +5,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var lodash_get_1 = __importDefault(require("lodash.get"));
 var common_1 = require("@nestjs/common");
 var const_1 = require("./const");
 var NestjsGraphqlValidator = /** @class */ (function () {
@@ -22,27 +26,33 @@ var NestjsGraphqlValidator = /** @class */ (function () {
             rules: this.rulesValidator,
         };
     }
-    NestjsGraphqlValidator.prototype.maxLenValidator = function (field, validatorValue) {
-        return field.length <= validatorValue;
+    NestjsGraphqlValidator.prototype.maxLenValidator = function (field, validatorValue, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
+        return fieldToCheck.length <= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.minLenValidator = function (field, validatorValue) {
-        return field.length >= validatorValue;
+    NestjsGraphqlValidator.prototype.minLenValidator = function (field, validatorValue, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
+        return fieldToCheck.length >= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.minValidator = function (field, validatorValue) {
-        return field >= validatorValue;
+    NestjsGraphqlValidator.prototype.minValidator = function (field, validatorValue, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
+        return fieldToCheck >= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.maxValidator = function (field, validatorValue) {
-        return field <= validatorValue;
+    NestjsGraphqlValidator.prototype.maxValidator = function (field, validatorValue, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
+        return fieldToCheck <= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.regExpValidator = function (field, validatorValue) {
-        return new RegExp(validatorValue).test(field);
+    NestjsGraphqlValidator.prototype.regExpValidator = function (field, validatorValue, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
+        return new RegExp(validatorValue).test(fieldToCheck);
     };
-    NestjsGraphqlValidator.prototype.rulesValidator = function (field, rules) {
+    NestjsGraphqlValidator.prototype.rulesValidator = function (field, rules, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         for (var _i = 0, rules_1 = rules; _i < rules_1.length; _i++) {
             var rule = rules_1[_i];
             var isValidRule = false;
             if (rule === const_1.RULE_EMAIL) {
-                isValidRule = new RegExp(const_1.REG_EXP_EMAIL).test(field);
+                isValidRule = new RegExp(const_1.REG_EXP_EMAIL).test(fieldToCheck);
             }
             else {
                 console.error("Unsuppported rule " + rule);
@@ -57,8 +67,8 @@ var NestjsGraphqlValidator = /** @class */ (function () {
             for (var _i = 0, _a = Object.keys(this.schema[metadata.data]); _i < _a.length; _i++) {
                 var key = _a[_i];
                 var schemaKey = key;
-                if (this.validators[schemaKey]) {
-                    var isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey]);
+                if (this.validators[schemaKey] && schemaKey !== 'propertyPath') {
+                    var isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey], this.schema[metadata.data]['propertyPath']);
                     if (!isValid) {
                         var errMsg = null;
                         if (this.schema[metadata.data].customError)
