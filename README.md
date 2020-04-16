@@ -1,6 +1,6 @@
 # nestjs graphql validator [![NPM version](https://badge.fury.io/js/nestjs-graphql-validator.svg)](http://badge.fury.io/js/nestjs-graphql-validator)
 
-Would you like to validate that your string is not longer that 250 characters? Or is acceptable by regex? You can...
+Would you like to validate that your string is not longer than 250 characters? Or is acceptable by regex? You can...
 
 ### Example usage
 In your `resolver` file
