@@ -1,6 +1,6 @@
 {
 	"name": "nestjs-graphql-validator",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"description": "The simple nestjs library for validating graphql fields",
 	"main": "./dist/index.js",
 	"scripts": {
