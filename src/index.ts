@@ -63,24 +63,40 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 	}
 
 	transform(value: any, metadata: ArgumentMetadata): any {
-		if (metadata && metadata.data && this.schema[metadata.data]) {
-			for (const key of Object.keys(this.schema[metadata.data])) {
-				const schemaKey: string = key
+		if (!metadata || !metadata.data) return value;
 
-				if (this.validators[schemaKey] && schemaKey !== 'propertyPath') {
-					const propertyPath = this.schema[metadata.data]['propertyPath']
-					const isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey], propertyPath)
+		for (const key of Object.keys(this.schema)) {
+			const schemaKey = key;
+
+			const splitPath = schemaKey.split('_'); // is nested ?
+			let propertyPath = undefined;
+
+			if (splitPath.length > 1) {
+				const rest = splitPath.slice(1); // skip first
+				propertyPath = rest.join('.');
+			}
+
+			for (const insideSchemaKey of Object.keys(this.schema[schemaKey])) {
+				if (this.validators[insideSchemaKey]) {
+					var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
+
 					if (!isValid) {
-						let errMsg = null
-						if (this.schema[metadata.data].customError) errMsg = this.schema[metadata.data].customError
-						else errMsg = `Validation failed for property ${metadata.data}, rules: ${schemaKey}${propertyPath || ''}#${this.schema[metadata.data][schemaKey]}`
-						throw new BadRequestException(errMsg)
+						let errMsg = null;
+						if (this.schema[schemaKey].customError) {
+
+							errMsg = this.schema[schemaKey].customError;
+						}
+						else {
+							errMsg = `Validation failed for property ${metadata.data}, rules: ${schemaKey}${(propertyPath || '')}#${this.schema[schemaKey][insideSchemaKey]}`;
+						}
+						throw new BadRequestException(errMsg);
 					}
-				} else {
-					console.error(`Unsuppported chema key ${schemaKey}`)
+				}
+				else {
+					console.error("Unsuppported chema key " + schemaKey);
 				}
 			}
 		}
-		return value
+		return value;
 	}
 }

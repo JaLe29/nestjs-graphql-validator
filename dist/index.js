@@ -63,18 +63,29 @@ var NestjsGraphqlValidator = /** @class */ (function () {
         return true;
     };
     NestjsGraphqlValidator.prototype.transform = function (value, metadata) {
-        if (metadata && metadata.data && this.schema[metadata.data]) {
-            for (var _i = 0, _a = Object.keys(this.schema[metadata.data]); _i < _a.length; _i++) {
-                var key = _a[_i];
-                var schemaKey = key;
-                if (this.validators[schemaKey] && schemaKey !== 'propertyPath') {
-                    var isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey], this.schema[metadata.data]['propertyPath']);
+        if (!metadata || !metadata.data)
+            return value;
+        for (var _i = 0, _a = Object.keys(this.schema); _i < _a.length; _i++) {
+            var key = _a[_i];
+            var schemaKey = key;
+            var splitPath = schemaKey.split('_'); // is nested ?
+            var propertyPath = undefined;
+            if (splitPath.length > 1) {
+                var rest = splitPath.slice(1); // skip first
+                propertyPath = rest.join('.');
+            }
+            for (var _b = 0, _c = Object.keys(this.schema[schemaKey]); _b < _c.length; _b++) {
+                var insideSchemaKey = _c[_b];
+                if (this.validators[insideSchemaKey]) {
+                    var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
                     if (!isValid) {
                         var errMsg = null;
-                        if (this.schema[metadata.data].customError)
-                            errMsg = this.schema[metadata.data].customError;
-                        else
-                            errMsg = "Validation failed for property " + metadata.data + ", rules: " + schemaKey + "#" + this.schema[metadata.data][schemaKey];
+                        if (this.schema[schemaKey].customError) {
+                            errMsg = this.schema[schemaKey].customError;
+                        }
+                        else {
+                            errMsg = "Validation failed for property " + metadata.data + ", rules: " + schemaKey + (propertyPath || '') + "#" + this.schema[schemaKey][insideSchemaKey];
+                        }
                         throw new common_1.BadRequestException(errMsg);
                     }
                 }

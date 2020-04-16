@@ -41,7 +41,7 @@ public exampleC(
 
 @Query()
 @UsePipes(new NestjsGraphqlValidator({
-	data: { propertyPath: 'email', maxLen: 255, minLen: 10, rules: ['isEmail'] }, // email is in object (data.email)
+	data_email: { maxLen: 255, minLen: 10, rules: ['isEmail'] }, // nested ----> email is in object (data.email)
 }))
 public exampleD(
 	@Args('data') data: { email: string, name: string },
@@ -62,5 +62,4 @@ In case of error `BadRequestException` from `import { BadRequestException } from
 | max    | number             |
 | regExp | regular expression |
 | rules  | Array of strings   |
-| propertyPath  | string   |
 (for rules only isEmail is avalible right now)
