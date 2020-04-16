@@ -89,8 +89,8 @@ var NestjsGraphqlValidator = /** @class */ (function () {
                     throw new common_1.BadRequestException(errMsg);
                 }
             }
-            else {
-                console.error("Unsuppported chema key " + schemaKey);
+            else if (insideSchemaKey !== 'customError') {
+                console.error("Unsuppported chema key " + insideSchemaKey);
             }
         }
         return value;

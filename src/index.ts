@@ -83,7 +83,6 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 				if (!isValid) {
 					let errMsg = null;
 					if (this.schema[schemaKey].customError) {
-
 						errMsg = this.schema[schemaKey].customError;
 					}
 					else {
@@ -91,9 +90,8 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 					}
 					throw new BadRequestException(errMsg);
 				}
-			}
-			else {
-				console.error("Unsuppported chema key " + schemaKey);
+			} else if (insideSchemaKey !== 'customError') {
+				console.error(`Unsuppported chema key ${insideSchemaKey}`);
 			}
 
 		}
