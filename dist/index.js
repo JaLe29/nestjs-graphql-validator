@@ -84,7 +84,7 @@ var NestjsGraphqlValidator = /** @class */ (function () {
                             errMsg = this.schema[schemaKey].customError;
                         }
                         else {
-                            errMsg = "Validation failed for property " + metadata.data + ", rules: " + schemaKey + (propertyPath || '') + "#" + this.schema[schemaKey][insideSchemaKey];
+                            errMsg = "Validation failed for property " + metadata.data + ", rules: " + insideSchemaKey + "#" + schemaKey + "#" + this.schema[schemaKey][insideSchemaKey];
                         }
                         throw new common_1.BadRequestException(errMsg);
                     }
