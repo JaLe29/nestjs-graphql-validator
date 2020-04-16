@@ -68,11 +68,12 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 				const schemaKey: string = key
 
 				if (this.validators[schemaKey] && schemaKey !== 'propertyPath') {
-					const isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey], this.schema[metadata.data]['propertyPath'])
+					const propertyPath = this.schema[metadata.data]['propertyPath']
+					const isValid = this.validators[schemaKey](value, this.schema[metadata.data][schemaKey], propertyPath)
 					if (!isValid) {
 						let errMsg = null
 						if (this.schema[metadata.data].customError) errMsg = this.schema[metadata.data].customError
-						else errMsg = `Validation failed for property ${metadata.data}, rules: ${schemaKey}#${this.schema[metadata.data][schemaKey]}`
+						else errMsg = `Validation failed for property ${metadata.data}, rules: ${schemaKey}${propertyPath || ''}#${this.schema[metadata.data][schemaKey]}`
 						throw new BadRequestException(errMsg)
 					}
 				} else {

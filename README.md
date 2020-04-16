@@ -5,39 +5,49 @@ Would you like to validate that your string is not longer that 250 characters? O
 ### Example usage
 In your `resolver` file
 ```javascript
-    import NestjsGraphqlValidator from 'nestjs-graphql-validator'
+import NestjsGraphqlValidator from 'nestjs-graphql-validator'
 
-	@Mutation()
-	@UsePipes(new NestjsGraphqlValidator({
-		email: { maxLen: 255, minLen: 10, rules: ['isEmail'] },
-	}))
-	public exampleA(
-		@Args('email') email: string,
-		@Args('name') name: string,
-	) {
-	    // ...
-		return { email, name }
-	}
+@Mutation()
+@UsePipes(new NestjsGraphqlValidator({
+	email: { maxLen: 255, minLen: 10, rules: ['isEmail'] },
+}))
+public exampleA(
+	@Args('email') email: string,
+	@Args('name') name: string,
+) {
+	// ...
+return { email, name }
+}
 
-	@Mutation()
-	@UsePipes(new NestjsGraphqlValidator({
-		email: { regExp: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/ },
-	}))
-	public exampleB(
-		@Args('email') email: string,
-	) {
+@Mutation()
+@UsePipes(new NestjsGraphqlValidator({
+	email: { regExp: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/ },
+}))
+public exampleB(
+	@Args('email') email: string,
+) {
 	    // ...
-	}
+}
 
-	@Query()
-	@UsePipes(new NestjsGraphqlValidator({
-		number: { max: 20 },
-	}))
-	public exampleC(
-		@Args('email') email: string,
-	) {
+@Query()
+@UsePipes(new NestjsGraphqlValidator({
+	number: { max: 20 },
+}))
+public exampleC(
+	@Args('email') email: string,
+) {
 	    // ...
-	}
+}
+
+@Query()
+@UsePipes(new NestjsGraphqlValidator({
+	data: { propertyPath: 'email', maxLen: 255, minLen: 10, rules: ['isEmail'] }, // email is in object (data.email)
+}))
+public exampleD(
+	@Args('data') data: { email: string, name: string },
+) {
+	    // ...
+}
 ```
 Email field is validated before body of `createUserTest` is execuded.
 
@@ -52,4 +62,5 @@ In case of error `BadRequestException` from `import { BadRequestException } from
 | max    | number             |
 | regExp | regular expression |
 | rules  | Array of strings   |
+| propertyPath  | string   |
 (for rules only isEmail is avalible right now)
