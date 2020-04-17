@@ -1,14 +1,16 @@
 import get from 'lodash.get'
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common'
+import { isNotExist } from './utils'
 import { REG_EXP_EMAIL, RULE_EMAIL } from './const'
 
+export type OptionsT = { orNull: boolean }
 export type ValidatorRuleType = number | RegExp
-export type FieldType = number | string;
+export type FieldType = number | string
 
 @Injectable()
 export default class NestjsGraphqlValidator implements PipeTransform {
 
-	validators: { [key: string]: (field: any, validatorValue: any, propertyPath?: string) => boolean } = {
+	validators: { [key: string]: (field: any, validatorValue: any, options: OptionsT, propertyPath?: string) => boolean } = {
 		// string
 		maxLen: this.maxLenValidator,
 		minLen: this.minLenValidator,
@@ -21,32 +23,32 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 
 	constructor(private schema: any) { }
 
-	private maxLenValidator(field: string, validatorValue: ValidatorRuleType, propertyPath?: string) {
+	private maxLenValidator(field: string, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck.length <= validatorValue
 	}
 
-	private minLenValidator(field: string, validatorValue: ValidatorRuleType, propertyPath?: string) {
+	private minLenValidator(field: string, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck.length >= validatorValue
 	}
 
-	private minValidator(field: number, validatorValue: ValidatorRuleType, propertyPath?: string) {
+	private minValidator(field: number, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck >= validatorValue
 	}
 
-	private maxValidator(field: number, validatorValue: ValidatorRuleType, propertyPath?: string) {
+	private maxValidator(field: number, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck <= validatorValue
 	}
 
-	private regExpValidator(field: string, validatorValue: RegExp, propertyPath?: string) {
+	private regExpValidator(field: string, validatorValue: RegExp, options: OptionsT, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return new RegExp(validatorValue).test(fieldToCheck)
 	}
 
-	private rulesValidator(field: string, rules: string[], propertyPath?: string) {
+	private rulesValidator(field: string, rules: string[], options: OptionsT, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 
 		for (const rule of rules) {
@@ -63,38 +65,48 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 	}
 
 	transform(value: any, metadata: ArgumentMetadata): any {
-		if (!metadata || !metadata.data) return value;
+		if (!metadata || !metadata.data) return value
 
-		const schemaKey = metadata.data;
+		const schemaKey = metadata.data
 
-		const splitPath = schemaKey.split('_'); // is nested ?
-		let propertyPath = undefined;
+		const splitPath = schemaKey.split('_') // is nested ?
+		let propertyPath
 
 		if (splitPath.length > 1) {
-			const rest = splitPath.slice(1); // skip first
-			propertyPath = rest.join('.');
+			const rest = splitPath.slice(1) // skip first
+			propertyPath = rest.join('.')
 		}
 
 		if (!this.schema[schemaKey]) return value
+		const options = { orNull: Boolean(this.schema[schemaKey].orNull) }
+
 		for (const insideSchemaKey of Object.keys(this.schema[schemaKey])) {
 			if (this.validators[insideSchemaKey]) {
-				var isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
+
+				let isValid = null
+				const valueIsNotExist = isNotExist(value)
+
+				if (options.orNull && valueIsNotExist) {
+					// allow null/undefined
+					isValid = true
+				} else if (!valueIsNotExist) {
+					isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], options, propertyPath)
+				}
 
 				if (!isValid) {
-					let errMsg = null;
+					let errMsg = null
 					if (this.schema[schemaKey].customError) {
-						errMsg = this.schema[schemaKey].customError;
+						errMsg = this.schema[schemaKey].customError
+					} else {
+						errMsg = `Validation failed for property ${metadata.data}, rules: ${insideSchemaKey}#${schemaKey}#${this.schema[schemaKey][insideSchemaKey]}`
 					}
-					else {
-						errMsg = `Validation failed for property ${metadata.data}, rules: ${insideSchemaKey}#${schemaKey}#${this.schema[schemaKey][insideSchemaKey]}`;
-					}
-					throw new BadRequestException(errMsg);
+					throw new BadRequestException(errMsg)
 				}
-			} else if (insideSchemaKey !== 'customError') {
-				console.error(`Unsuppported chema key ${insideSchemaKey}`);
+			} else if (insideSchemaKey !== 'customError' && insideSchemaKey !== 'orNull') {
+				console.error(`Unsuppported chema key ${insideSchemaKey}`)
 			}
 
 		}
-		return value;
+		return value
 	}
 }

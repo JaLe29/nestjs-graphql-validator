@@ -153,3 +153,21 @@ describe('other', () => {
 		expect(validator.transform('foooooooooo', {data: 'name'})).toEqual('foooooooooo')
 	})
 })
+
+describe('orNull', () => {
+	test('should accept orNull param', () => {
+		const validator = new NestjsGraphqlValidator({number: {max: 20, orNull: true}})
+		expect(validator.transform(null, {data: 'number'})).toEqual(null)
+	})
+
+	test('should fail when orNull is false', () => {
+		const validator = new NestjsGraphqlValidator({number: {max: 20}}) // orNull is default false
+
+		try {
+			expect(validator.transform(null, {data: 'number'})).toEqual(null)
+		} catch (e) {
+			expect(e.message).toBe('Validation failed for property number, rules: max#number#20')
+			expect(e instanceof BadRequestException).toBe(true)
+		}
+	})
+})

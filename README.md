@@ -62,5 +62,6 @@ In case of error `BadRequestException` from `import { BadRequestException } from
 | max    | number             |
 | regExp | regular expression |
 | rules  | Array of strings   |
+| orNull | Accept null/undefined value |
 
 (for rules only isEmail is avalible right now)

@@ -6,7 +6,9 @@
 	"scripts": {
 		"build": "npx tsc",
 		"test": "jest",
-		"test:coverage": "jest --coverage"
+		"test:coverage": "jest --coverage",
+		"lint": "tslint -c tslint.json 'src/**/*.ts'",
+		"lint:fix": "npx tslint -c tslint.json 'src/**/*.ts' --fix"
 	},
 	"repository": {
 		"type": "git",
@@ -34,6 +36,7 @@
 		"jest": "^25.3.0",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^6.5.5",
+		"tslint": "^6.1.1",
 		"typescript": "^3.8.3"
 	},
 	"peerDependencies": {
