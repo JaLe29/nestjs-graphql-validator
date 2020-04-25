@@ -63,5 +63,6 @@ In case of error `BadRequestException` from `import { BadRequestException } from
 | regExp | regular expression |
 | rules  | Array of strings   |
 | orNull | Accept null/undefined value |
+| enum   | Array of values |
 
 (for rules only isEmail is avalible right now)

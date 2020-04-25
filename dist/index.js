@@ -25,29 +25,34 @@ var NestjsGraphqlValidator = /** @class */ (function () {
             max: this.maxValidator,
             regExp: this.regExpValidator,
             rules: this.rulesValidator,
+            enum: this.enumValidator,
         };
     }
-    NestjsGraphqlValidator.prototype.maxLenValidator = function (field, validatorValue, options, propertyPath) {
+    NestjsGraphqlValidator.prototype.enumValidator = function (field, validatorValue, propertyPath) {
+        var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
+        return validatorValue.includes(fieldToCheck);
+    };
+    NestjsGraphqlValidator.prototype.maxLenValidator = function (field, validatorValue, propertyPath) {
         var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         return fieldToCheck.length <= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.minLenValidator = function (field, validatorValue, options, propertyPath) {
+    NestjsGraphqlValidator.prototype.minLenValidator = function (field, validatorValue, propertyPath) {
         var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         return fieldToCheck.length >= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.minValidator = function (field, validatorValue, options, propertyPath) {
+    NestjsGraphqlValidator.prototype.minValidator = function (field, validatorValue, propertyPath) {
         var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         return fieldToCheck >= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.maxValidator = function (field, validatorValue, options, propertyPath) {
+    NestjsGraphqlValidator.prototype.maxValidator = function (field, validatorValue, propertyPath) {
         var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         return fieldToCheck <= validatorValue;
     };
-    NestjsGraphqlValidator.prototype.regExpValidator = function (field, validatorValue, options, propertyPath) {
+    NestjsGraphqlValidator.prototype.regExpValidator = function (field, validatorValue, propertyPath) {
         var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         return new RegExp(validatorValue).test(fieldToCheck);
     };
-    NestjsGraphqlValidator.prototype.rulesValidator = function (field, rules, options, propertyPath) {
+    NestjsGraphqlValidator.prototype.rulesValidator = function (field, rules, propertyPath) {
         var fieldToCheck = propertyPath ? lodash_get_1.default(field, propertyPath) : field;
         for (var _i = 0, rules_1 = rules; _i < rules_1.length; _i++) {
             var rule = rules_1[_i];
@@ -86,7 +91,7 @@ var NestjsGraphqlValidator = /** @class */ (function () {
                     isValid = true;
                 }
                 else if (!valueIsNotExist) {
-                    isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], options, propertyPath);
+                    isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath);
                 }
                 if (!isValid) {
                     var errMsg = null;

@@ -3,14 +3,13 @@ import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from
 import { isNotExist } from './utils'
 import { REG_EXP_EMAIL, RULE_EMAIL } from './const'
 
-export type OptionsT = { orNull: boolean }
-export type ValidatorRuleType = number | RegExp
+export type ValidatorRuleType = number | RegExp | any[string | number]
 export type FieldType = number | string
 
 @Injectable()
 export default class NestjsGraphqlValidator implements PipeTransform {
 
-	validators: { [key: string]: (field: any, validatorValue: any, options: OptionsT, propertyPath?: string) => boolean } = {
+	validators: { [key: string]: (field: any, validatorValue: any, propertyPath?: string) => boolean } = {
 		// string
 		maxLen: this.maxLenValidator,
 		minLen: this.minLenValidator,
@@ -19,36 +18,42 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 		max: this.maxValidator,
 		regExp: this.regExpValidator,
 		rules: this.rulesValidator,
+		enum: this.enumValidator,
 	}
 
 	constructor(private schema: any) { }
 
-	private maxLenValidator(field: string, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
+	private enumValidator(field: string, validatorValue: ValidatorRuleType, propertyPath?: string) {
+		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
+		return validatorValue.includes(fieldToCheck)
+	}
+
+	private maxLenValidator(field: string, validatorValue: ValidatorRuleType, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck.length <= validatorValue
 	}
 
-	private minLenValidator(field: string, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
+	private minLenValidator(field: string, validatorValue: ValidatorRuleType, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck.length >= validatorValue
 	}
 
-	private minValidator(field: number, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
+	private minValidator(field: number, validatorValue: ValidatorRuleType, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck >= validatorValue
 	}
 
-	private maxValidator(field: number, validatorValue: ValidatorRuleType, options: OptionsT, propertyPath?: string) {
+	private maxValidator(field: number, validatorValue: ValidatorRuleType, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return fieldToCheck <= validatorValue
 	}
 
-	private regExpValidator(field: string, validatorValue: RegExp, options: OptionsT, propertyPath?: string) {
+	private regExpValidator(field: string, validatorValue: RegExp, propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 		return new RegExp(validatorValue).test(fieldToCheck)
 	}
 
-	private rulesValidator(field: string, rules: string[], options: OptionsT, propertyPath?: string) {
+	private rulesValidator(field: string, rules: string[], propertyPath?: string) {
 		const fieldToCheck = propertyPath ? get(field, propertyPath) : field
 
 		for (const rule of rules) {
@@ -90,7 +95,7 @@ export default class NestjsGraphqlValidator implements PipeTransform {
 					// allow null/undefined
 					isValid = true
 				} else if (!valueIsNotExist) {
-					isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], options, propertyPath)
+					isValid = this.validators[insideSchemaKey](value, this.schema[schemaKey][insideSchemaKey], propertyPath)
 				}
 
 				if (!isValid) {

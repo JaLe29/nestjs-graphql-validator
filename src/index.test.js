@@ -171,3 +171,21 @@ describe('orNull', () => {
 		}
 	})
 })
+
+describe('orNull', () => {
+	test('should throw error for wrong enum', () => {
+		const validator = new NestjsGraphqlValidator({text: {enum: ['foo']}})
+
+		try {
+			expect(validator.transform('wrong foo', {data: 'text'})).toEqual('foo')
+		} catch (e) {
+			expect(e.message).toBe(`Validation failed for property text, rules: enum#text#foo`)
+			expect(e instanceof BadRequestException).toBe(true)
+		}
+	})
+
+	test('should accept enum param', () => {
+		const validator = new NestjsGraphqlValidator({text: {enum: ['foo']}})
+		expect(validator.transform('foo', {data: 'text'})).toEqual('foo')
+	})
+})
